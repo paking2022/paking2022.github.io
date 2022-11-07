@@ -1,0 +1,180 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"><title>一篇搞懂值传递和引用传递 | F班的小夏同学</title><meta name="author" content="paking"><meta name="copyright" content="paking"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="在各种教程中，大家可以经常看到这句话：   ECMAScript中所有参数传递的都是值，不可能通过引用传递参数  但是在实际应用的时候，似乎没有这么简单，今天我们来聊一下在js调用函数传递变量参数时，到底是值传递还是引用传递呢？在此之前，先和大家插入一个小知识： 关于引用变量赋值问题 两个引用变量指向同一个对象，通过一个变量修改对象内部数据，另一个变量看到是修改之后的数据  123456789va">
+<meta property="og:type" content="article">
+<meta property="og:title" content="一篇搞懂值传递和引用传递">
+<meta property="og:url" content="http://example.com/2022/11/07/%E4%B8%80%E7%AF%87%E6%90%9E%E6%87%82%E5%80%BC%E4%BC%A0%E9%80%92%E5%92%8C%E5%BC%95%E7%94%A8%E4%BC%A0%E9%80%92/index.html">
+<meta property="og:site_name" content="F班的小夏同学">
+<meta property="og:description" content="在各种教程中，大家可以经常看到这句话：   ECMAScript中所有参数传递的都是值，不可能通过引用传递参数  但是在实际应用的时候，似乎没有这么简单，今天我们来聊一下在js调用函数传递变量参数时，到底是值传递还是引用传递呢？在此之前，先和大家插入一个小知识： 关于引用变量赋值问题 两个引用变量指向同一个对象，通过一个变量修改对象内部数据，另一个变量看到是修改之后的数据  123456789va">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2022-11-07T09:46:01.095Z">
+<meta property="article:modified_time" content="2022-11-07T09:53:08.686Z">
+<meta property="article:author" content="paking">
+<meta property="article:tag" content="javascript">
+<meta name="twitter:card" content="summary"><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="http://example.com/2022/11/07/%E4%B8%80%E7%AF%87%E6%90%9E%E6%87%82%E5%80%BC%E4%BC%A0%E9%80%92%E5%92%8C%E5%BC%95%E7%94%A8%E4%BC%A0%E9%80%92/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  date_suffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '一篇搞懂值传递和引用传递',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2022-11-07 17:53:08'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const detectApple = () => {
+      if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><link rel="stylesheet" href="/css/custom.css" media="defer" onload="this.media='all'"><meta name="generator" content="Hexo 6.3.0"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="https://i.loli.net/2021/02/24/5O1day2nriDzjSu.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">1</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">1</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">1</div></a></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fa fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fa fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fa fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fa fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/messageboard/"><i class="fa-fw fa fa-paper-plane"></i><span> 留言板</span></a></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fa fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/timeline/"><i class="fa-fw fa fa-bell"></i><span> 日志</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fa fa-list"></i><span> 菜单</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/about"><i class="fa-fw /about/"></i><span> 0</span></a></li><li><a class="site-page child" href="/myself"><i class="fa-fw /myself/"></i><span> 1</span></a></li><li><a class="site-page child" href="/butterfly"><i class="fa-fw https://github.com/jerryc127/hexo-theme-butterfly/"></i><span> 2</span></a></li></ul></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7')"><nav id="nav"><span id="blog_name"><a id="site-name" href="/">F班的小夏同学</a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fa fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fa fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fa fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fa fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/messageboard/"><i class="fa-fw fa fa-paper-plane"></i><span> 留言板</span></a></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fa fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/timeline/"><i class="fa-fw fa fa-bell"></i><span> 日志</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fa fa-list"></i><span> 菜单</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/about"><i class="fa-fw /about/"></i><span> 0</span></a></li><li><a class="site-page child" href="/myself"><i class="fa-fw /myself/"></i><span> 1</span></a></li><li><a class="site-page child" href="/butterfly"><i class="fa-fw https://github.com/jerryc127/hexo-theme-butterfly/"></i><span> 2</span></a></li></ul></div></div><div id="toggle-menu"><a class="site-page"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">一篇搞懂值传递和引用传递</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2022-11-07T09:46:01.095Z" title="发表于 2022-11-07 17:46:01">2022-11-07</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2022-11-07T09:53:08.686Z" title="更新于 2022-11-07 17:53:08">2022-11-07</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/javascript/">javascript</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="一篇搞懂值传递和引用传递"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><p><em><strong>在各种教程中，大家可以经常看到这句话：</strong></em> </p>
+<blockquote>
+<p>ECMAScript中所有参数传递的都是值，不可能通过引用传递参数</p>
+</blockquote>
+<p><em><strong>但是在实际应用的时候，似乎没有这么简单，今天我们来聊一下在js调用函数传递变量参数时，到底是值传递还是引用传递呢？在此之前，先和大家插入一个小知识：</strong></em></p>
+<h3 id="关于引用变量赋值问题"><a href="#关于引用变量赋值问题" class="headerlink" title="关于引用变量赋值问题"></a>关于引用变量赋值问题</h3><ul>
+<li>两个引用变量指向同一个对象，通过一个变量修改对象内部数据，另一个变量看到是修改之后的数据</li>
+</ul>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> obj1=&#123;<span class="attr">name</span>:<span class="string">&#x27;Tom&#x27;</span>&#125;</span><br><span class="line"><span class="keyword">var</span> obj2=obj1</span><br><span class="line">obj2.<span class="property">age</span>=<span class="number">12</span></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(obj1.<span class="property">age</span>) <span class="comment">//12</span></span><br><span class="line"><span class="keyword">function</span> <span class="title function_">fn</span>(<span class="params">obj</span>)&#123;</span><br><span class="line">    obj.<span class="property">name</span>=<span class="string">&#x27;A&#x27;</span></span><br><span class="line">&#125;</span><br><span class="line"><span class="title function_">fn</span>(obj1)</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(obj2.<span class="property">name</span>) <span class="comment">//A</span></span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>在真正明白这个例子前，我们先来确定一下自己是否真正理解变量的含义：<strong>var a&#x3D;xxxx，a内存中到底保存的是什么？</strong><br>我们分三种情况来讨论：<br>1.xxxx是基本数据，保存的就是这个数据<br><code>var a=3;</code><br>2.xxxx是对象，保存的是对象的地址值<br><code>var a=function()&#123; &#125;</code><br>3.xxxx是一个变量，保存的xxxx的内存内容（可能是基本数据，也可能是地址值）</p>
+</blockquote>
+<p>重新回到我们的这个例子，obj2和obj1指向了同一个对象，并且通过obj2对该对象的age属性进行了修改，这个时候改变的是obj2指向的对象的本身，又因为obj1和obj2指向的是同一个对象，所以在打印obj1.age的时候，输出的结果是更改过后的结果，也就是12。<br>在通过fn函数将obj1传递进去之后，相当于是obj&#x3D;obj1，此时已经将obj和obj1指向了同一个对象，这个时候，obj、obj1、obj2三个变量指向了同一个对象。那么在函数中对对象的name属性更改了之后，再打印obj2的name属性就理所当然的为更改之后的值，即A。</p>
+<ul>
+<li>两个引用变量指向同一个变量，让其中一个引用变量指向另一个对象，另一个引用变量依然指向前一个对象</li>
+</ul>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> a=&#123;<span class="attr">age</span>:<span class="number">12</span>&#125;</span><br><span class="line"><span class="keyword">var</span> b=a</span><br><span class="line">a=&#123;<span class="attr">name</span>:<span class="string">&#x27;BOB&#x27;</span>，<span class="attr">age</span>:<span class="number">13</span>&#125;</span><br><span class="line">b.<span class="property">age</span>=<span class="number">14</span></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(b.<span class="property">age</span>,a.<span class="property">name</span>,a.<span class="property">age</span>)<span class="comment">//14  Bob  13</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">function</span> <span class="title function_">fn2</span>(<span class="params">obj</span>)&#123;</span><br><span class="line">    obj=&#123;<span class="attr">age</span>:<span class="number">15</span>&#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="title function_">fn2</span>(a)</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(a.<span class="property">age</span>) <span class="comment">//13</span></span><br></pre></td></tr></table></figure>
+<p>在这个例子中，var b&#x3D;a 让b和a指向了同一个对象，但是，a&#x3D;{name:’BOB’，age:13}使a的指向对象发生了改变，但是b还指向之前的对象，所以在b的age属性发生改变的时候，与a指向对象已经没有关系了，所以输出b的age属性应该是更改之后的age属性值，但是a的name属性和a的age属性应该是新指向对象的值。<br>在通过fn2函数将a传进去之后，相当于obj&#x3D;a，此时obj和a指向了同一个对象，但是在函数体内，obj&#x3D;{age:15} 使obj的指向对象发生了改变，此时obj已经成了一个局部的变量，和a指向的对象已经互不相干，在执行完函数之后obj对象将自动销毁，并且obj所做的任何操作与全局变量的a没有任何关系，所有打印出的a的age属性仍然为13。</p>
+<blockquote>
+<p>好了，在有了上述的基础之后，我们开始探讨我们今天的主要问题。</p>
+</blockquote>
+<h3 id="值传递还是引用传递？"><a href="#值传递还是引用传递？" class="headerlink" title="值传递还是引用传递？"></a>值传递还是引用传递？</h3><p>我们分为两个部分来分析：</p>
+<ul>
+<li>基础数据类型</li>
+</ul>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> a = <span class="number">10</span></span><br><span class="line"><span class="keyword">function</span> <span class="title function_">add</span>(<span class="params">num</span>)&#123;</span><br><span class="line">	num+=<span class="number">10</span></span><br><span class="line">&#125;</span><br><span class="line"><span class="title function_">add</span>(a)</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(a) <span class="comment">//10</span></span><br></pre></td></tr></table></figure>
+<p>基本数据类型比较简单，在add函数中传入a的时候，只是将a的值复制了一份给了num，num可以看做一个局部的变量，他所做的任何操作都影响不到全局变量a，函数运行结束的时候num也会随之销毁，所以在打印a的时候，a的值仍然为初始值10。在这里值传递的思想完美诠释，没有任何问题。</p>
+<ul>
+<li>对象类型</li>
+</ul>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> student = <span class="keyword">new</span> <span class="title class_">Object</span>()</span><br><span class="line"><span class="keyword">function</span> <span class="title function_">addNum</span> (obj) &#123;</span><br><span class="line">	obj.<span class="property">num</span> = <span class="string">&#x27;23&#x27;</span></span><br><span class="line">&#125;</span><br><span class="line"><span class="title function_">addNum</span>(student)</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(student.<span class="property">num</span>) <span class="comment">//23</span></span><br></pre></td></tr></table></figure>
+<p>在对象类型的时候，我们发现和基本数据类型不同，函数内部对obj的num属性的改变竟然也改变了student对象的num类型，这个时候，这个结果和我们开篇的那句话&#x3D;&#x3D;ECMAScript中所有参数传递的都是值，不可能通过引用传递参数&#x3D;&#x3D;似乎矛盾了？？？这是怎么回事呢？<br>把student对象实例作为参数传递给obj时，是将student所指对象的地址复制了一份给obj，这样obj空间所存的地址和student就都指向了共同的存储空间。也就是说，obj和student指向了同一个对象。等等！！！这不就回到了我们上一个问题中的引用变量赋值问题吗？有没有豁然开朗的感觉？！因obj和student指向了同一个对象，那么，在obj对对象更新的时候，studen同样也更新，打印出的student的num值理所应当的就为更改之后的值了，即23。</p>
+<ul>
+<li>练习一下</li>
+</ul>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> student= <span class="keyword">new</span> <span class="title class_">Object</span>()</span><br><span class="line"><span class="keyword">function</span> <span class="title function_">addName</span>(<span class="params">obj</span>)&#123;</span><br><span class="line">obj.<span class="property">name</span> = ‘haha’</span><br><span class="line">obj = <span class="keyword">new</span> <span class="title class_">Object</span>()</span><br><span class="line">obj.<span class="property">name</span> = ‘lala’</span><br><span class="line">&#125;</span><br><span class="line"><span class="title function_">addName</span>(student)</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(student.<span class="property">name</span>) <span class="comment">//haha</span></span><br></pre></td></tr></table></figure>
+<p>在这个例子中，将student传入addName函数中，此时student和obj指向了同一个对象，并且通过  obj.name &#x3D; ‘haha’对对象添加了name属性并且赋值为haha。但是在下一步，obj &#x3D; new Object()，也就意味着obj重新指向了一个新的对象，此时obj变为了一个局部的变量，并且与全局变量student毫无关系，在函数执行完毕的时候，obj也会随之销毁。所以在打印student的name属性的时候会打印出来haha。</p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="http://example.com">paking</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="http://example.com/2022/11/07/%E4%B8%80%E7%AF%87%E6%90%9E%E6%87%82%E5%80%BC%E4%BC%A0%E9%80%92%E5%92%8C%E5%BC%95%E7%94%A8%E4%BC%A0%E9%80%92/">http://example.com/2022/11/07/%E4%B8%80%E7%AF%87%E6%90%9E%E6%87%82%E5%80%BC%E4%BC%A0%E9%80%92%E5%92%8C%E5%BC%95%E7%94%A8%E4%BC%A0%E9%80%92/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="http://example.com" target="_blank">F班的小夏同学</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/javascript/">javascript</a></div><div class="post_share"><div class="social-share" data-image="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"></nav></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="https://i.loli.net/2021/02/24/5O1day2nriDzjSu.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">paking</div><div class="author-info__description">理想主义青年永远不会被现实招安</div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">1</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">1</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">1</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/xxxxxx"><i class="fab fa-github"></i><span>Follow Me</span></a></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">This is my Blog</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%85%B3%E4%BA%8E%E5%BC%95%E7%94%A8%E5%8F%98%E9%87%8F%E8%B5%8B%E5%80%BC%E9%97%AE%E9%A2%98"><span class="toc-number">1.</span> <span class="toc-text">关于引用变量赋值问题</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%80%BC%E4%BC%A0%E9%80%92%E8%BF%98%E6%98%AF%E5%BC%95%E7%94%A8%E4%BC%A0%E9%80%92%EF%BC%9F"><span class="toc-number">2.</span> <span class="toc-text">值传递还是引用传递？</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2022/11/07/%E4%B8%80%E7%AF%87%E6%90%9E%E6%87%82%E5%80%BC%E4%BC%A0%E9%80%92%E5%92%8C%E5%BC%95%E7%94%A8%E4%BC%A0%E9%80%92/" title="一篇搞懂值传递和引用传递"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="一篇搞懂值传递和引用传递"/></a><div class="content"><a class="title" href="/2022/11/07/%E4%B8%80%E7%AF%87%E6%90%9E%E6%87%82%E5%80%BC%E4%BC%A0%E9%80%92%E5%92%8C%E5%BC%95%E7%94%A8%E4%BC%A0%E9%80%92/" title="一篇搞懂值传递和引用传递">一篇搞懂值传递和引用传递</a><time datetime="2022-11-07T09:46:01.095Z" title="发表于 2022-11-07 17:46:01">2022-11-07</time></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy;2020 - 2022 By paking</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.umd.min.js"></script><div class="js-pjax"></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>
